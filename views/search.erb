@@ -1,11 +1,9 @@
-
 <h1>Contacts</h1>
   <form action= "/search" method="get">
     <label for= "search">Search:</label>
     <input type="text" id="search" name="search" />
     <input type="submit" value="Search" />
   </form>
-
 <ul>
   <% @contacts.each do |contact| %>
     <li><a href="/contacts/<%= contact.id%>"><%= contact.name %> - <%= contact.phone_number %></a></li>
@@ -13,4 +11,3 @@
 </ul>
 <a href="/?page=<%= @return_page %>">Page: <%= @return_page%></a>
 <a href="/?page=<%= @page_number%>">Page: <%= @page_number%></a>
-

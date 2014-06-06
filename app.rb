@@ -1,24 +1,44 @@
 require 'sinatra'
 require 'sinatra/reloader'
+require "sinatra/activerecord"
+require_relative 'methods'
 
 require_relative 'models/contact'
 
-before do
-  contact_attributes = [
-    { first_name: 'Eric', last_name: 'Kelly', phone_number: '1234567890' },
-    { first_name: 'Adam', last_name: 'Sheehan', phone_number: '1234567890' },
-    { first_name: 'Dan', last_name: 'Pickett', phone_number: '1234567890' },
-    { first_name: 'Evan', last_name: 'Charles', phone_number: '1234567890' },
-    { first_name: 'Faizaan', last_name: 'Shamsi', phone_number: '1234567890' },
-    { first_name: 'Helen', last_name: 'Hood', phone_number: '1234567890' },
-    { first_name: 'Corinne', last_name: 'Babel', phone_number: '1234567890' }
-  ]
 
-  @contacts = contact_attributes.map do |attr|
-    Contact.new(attr)
-  end
-end
 
 get '/' do
+  @page_number = params[:page] || 1
+  @return_page = return_page(@page_number)
+  offset = (@page_number.to_i - 1) * 3
+  @contacts = Contact.limit(3).offset(offset)
+  @page_number = @page_number.to_i + 1
   erb :index
 end
+
+get '/contacts/:id' do
+  @contact = Contact.where("id = #{params[:id]}")
+  erb :show
+end
+
+get '/search' do
+  @contacts = Contact.where(["last_name ILIKE ? OR first_name ILIKE ?", "%#{params[:search]}%", "%#{params[:search]}%"])
+  erb :search
+end
+
+get '/add_contact' do
+
+  erb :add
+end
+
+post '/add' do
+    first_name = params[:first].downcase
+    last_name = params[:last].downcase
+    number = params[:number]
+
+    Contact.create({:first_name => first_name.capitalize, :last_name => last_name.capitalize, :phone_number => number})
+    redirect '/'
+
+end
+
+
